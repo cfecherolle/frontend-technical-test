@@ -38,15 +38,32 @@ body {
 
 #country-global-info-panel {
   display: flex;
+  flex-direction: column;
   min-width: 50%;
   max-height: 25rem;
+  height: max-content;
   border: 1px black solid;
   margin: 0.25rem 0 0 1rem;
   padding: 1rem;
+}
+
+#country-global-info-panel p {
+  margin: 0 0 0.5rem 0;
 }
 
 #detailed-info-message {
   font-size: 2rem;
   text-align: center;
   align-self: center;
+}
+
+#flag-image {
+  max-width: 60%;
+  border: 1px black solid;
+  align-self: center;
+  margin-bottom: 1rem;
+}
+
+.details-field-label {
+  font-weight: bold;
 }
