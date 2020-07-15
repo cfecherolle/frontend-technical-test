@@ -1,12 +1,32 @@
+body {
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 90%;
+  display: flex;
+}
+
 #country-list-wrapper {
   display: flex;
   flex-direction: column;
+  max-width: 50%;
 }
 
 .country-card {
+  cursor: pointer;
   border: 1px black solid;
   padding: 0.5rem;
   margin: 0.25rem;
+}
+
+.country-card:hover {
+  background-color: azure;
+}
+
+.country-card.selected {
+  background-color: darkturquoise;
 }
 
 .country-card-code {
@@ -14,4 +34,19 @@
 
 .country-card-name {
   margin: 0;
+}
+
+#country-global-info-panel {
+  display: flex;
+  min-width: 50%;
+  max-height: 25rem;
+  border: 1px black solid;
+  margin: 0.25rem 0 0 1rem;
+  padding: 1rem;
+}
+
+#detailed-info-message {
+  font-size: 2rem;
+  text-align: center;
+  align-self: center;
 }
