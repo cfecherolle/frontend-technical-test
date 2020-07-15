@@ -2,32 +2,53 @@
 
 $(document).ready(() => {
   let allCountriesByAlpha3CodeAndName = {};
+  let allCountriesDataCache = [];
   let countriesDataCache = {};
 
   let countriesListElement = $("#country-list-wrapper");
-  let countriesInfoPanelElement = $("#country-global-info-panel");
+  let countriesInfoPanelContentElement = $("#info-panel-content");
 
-  window
-    .fetch(
-      "https://restcountries.eu/rest/v2/all?fields=name;alpha2Code;alpha3Code;"
-    )
-    .then(response => {
-      return response.json();
-    })
-    .then(allCountriesData => {
-      provisionData(allCountriesData);
-    })
-    .catch(error =>
-      console.error(
-        "There was a problem with the request to get countries info.",
-        error
+  initApp();
+
+  function initApp() {
+    const searchButton = $("#search-button");
+    const searchField = $("#search-field");
+
+    $("#search-button").click(() => searchCountries());
+
+    // Trigger search on enter key press in search field
+    searchField.keyup(event => {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        searchButton.click();
+      }
+    });
+
+    window
+      .fetch(
+        "https://restcountries.eu/rest/v2/all?fields=name;alpha2Code;alpha3Code;"
       )
-    );
+      .then(response => {
+        return response.json();
+      })
+      .then(allCountriesData => {
+        allCountriesDataCache = allCountriesData;
+        if ($.isEmptyObject(allCountriesByAlpha3CodeAndName)) {
+          for (const country of allCountriesData) {
+            allCountriesByAlpha3CodeAndName[country.alpha3Code] = country.name;
+          }
+        }
+        provisionData(allCountriesData);
+      })
+      .catch(error =>
+        console.error(
+          "There was a problem with the request to get countries info.",
+          error
+        )
+      );
+  }
 
   function provisionData(countriesData) {
-    for (const country of countriesData) {
-      allCountriesByAlpha3CodeAndName[country.alpha3Code] = country.name;
-    }
     let countriesListElementContent = "";
 
     countriesData.forEach(country => {
@@ -78,9 +99,8 @@ $(document).ready(() => {
   }
 
   function provisionCountryDetails(countryData) {
-    console.log(countryData);
     const detailsContent = generateDetailsContent(countryData);
-    countriesInfoPanelElement.html(detailsContent);
+    countriesInfoPanelContentElement.html(detailsContent);
   }
 
   function generateDetailsContent(countryData) {
@@ -143,5 +163,31 @@ $(document).ready(() => {
           </p>`;
     }
     return content;
+  }
+
+  function searchCountries() {
+    const searchTerm = $("#search-field")
+      .val()
+      .toLowerCase();
+
+    let searchResults = [];
+    if (!searchTerm) {
+      searchResults = allCountriesDataCache;
+    } else {
+      searchResults = allCountriesDataCache.filter(country =>
+        country.name.toLowerCase().startsWith(searchTerm)
+      );
+    }
+
+    provisionData(searchResults);
+
+    if (!searchResults.length) {
+      countriesListElement.html(
+        `<p>No search results for ${searchTerm}. Please try again.</p>`
+      );
+    }
+
+    countriesInfoPanelContentElement.html("");
+    $("#detailed-info-message").show();
   }
 });

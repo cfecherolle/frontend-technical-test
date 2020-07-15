@@ -1,6 +1,24 @@
 body {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  display: flex;
+  width: 100%;
+  background-color: lightgray;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+#search-field {
+  flex: 8;
+}
+
+#search-button {
+  flex: 1;
+  margin-left: 1rem;
 }
 
 #app {
@@ -11,7 +29,7 @@ body {
 #country-list-wrapper {
   display: flex;
   flex-direction: column;
-  max-width: 50%;
+  width: 50%;
 }
 
 .country-card {
@@ -29,9 +47,6 @@ body {
   background-color: darkturquoise;
 }
 
-.country-card-code {
-}
-
 .country-card-name {
   margin: 0;
 }
@@ -39,8 +54,7 @@ body {
 #country-global-info-panel {
   display: flex;
   flex-direction: column;
-  min-width: 50%;
-  max-height: 25rem;
+  width: 50%;
   height: max-content;
   border: 1px black solid;
   margin: 0.25rem 0 0 1rem;
