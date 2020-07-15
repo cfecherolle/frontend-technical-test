@@ -1,12 +1,14 @@
 /* globals $ */
 
 $(document).ready(() => {
+  const apiBaseUrl = "https://restcountries.eu/rest/v2";
+
   let allCountriesByAlpha3CodeAndName = {};
   let allCountriesDataCache = [];
   let countriesDataCache = {};
 
   let countriesListElement = $("#country-list-wrapper");
-  let countriesInfoPanelContentElement = $("#info-panel-content");
+  let countriesInfoPanelContentElement = $("#global-info-panel-content");
 
   initApp();
 
@@ -25,9 +27,7 @@ $(document).ready(() => {
     });
 
     window
-      .fetch(
-        "https://restcountries.eu/rest/v2/all?fields=name;alpha2Code;alpha3Code;"
-      )
+      .fetch(`${apiBaseUrl}/all?fields=name;alpha2Code;alpha3Code;`)
       .then(response => {
         return response.json();
       })
@@ -64,13 +64,20 @@ $(document).ready(() => {
     <div class="country-card">
       <span class="country-card-code">${country.alpha2Code}</span>
       <h3 class="country-card-name">${country.name}</h3>
-    </div>`;
+    </div>
+    <div class="country-card-info-panel country-details"></div>
+    `;
   }
 
   function initializeClickHandlers() {
     $(".country-card").click(event => {
-      $(".country-card.selected").removeClass("selected");
-      event.currentTarget.className += " selected";
+      $(".selected").removeClass("selected");
+      const selectedCard = event.currentTarget;
+      selectedCard.className += " selected";
+      $(selectedCard)
+        .next("div.country-card-info-panel")
+        .addClass("selected");
+
       const selectedCode = $(".country-card.selected > .country-card-code")
         .text()
         .trim();
@@ -78,15 +85,18 @@ $(document).ready(() => {
       $("#detailed-info-message").hide();
 
       if (countriesDataCache[selectedCode]) {
-        provisionCountryDetails(countriesDataCache[selectedCode]);
+        provisionCountryDetails(
+          countriesDataCache[selectedCode],
+          event.currentTarget
+        );
       } else {
         fetch(
-          `https://restcountries.eu/rest/v2/alpha/${selectedCode}?fields=flag;nativeName;capital;population;languages;timezones;borders`
+          `${apiBaseUrl}/alpha/${selectedCode}?fields=flag;nativeName;capital;population;languages;timezones;borders`
         )
           .then(response => response.json())
           .then(selectedCountryData => {
             countriesDataCache[selectedCode] = selectedCountryData;
-            provisionCountryDetails(selectedCountryData);
+            provisionCountryDetails(selectedCountryData, event.currentTarget);
           })
           .catch(error =>
             console.error(
@@ -98,14 +108,21 @@ $(document).ready(() => {
     });
   }
 
-  function provisionCountryDetails(countryData) {
+  function provisionCountryDetails(countryData, cardElement) {
     const detailsContent = generateDetailsContent(countryData);
+
+    $("div.country-card-info-panel").html("");
+
     countriesInfoPanelContentElement.html(detailsContent);
+    $(cardElement)
+      .next("div.country-card-info-panel")
+      .html(detailsContent);
   }
 
   function generateDetailsContent(countryData) {
     let content = `
     <img id="flag-image" src="${countryData.flag}" />
+      <div id="details-wrapper">
         <p>
           <span class="details-field-label">Native name:</span>
           <span class="details-field-value">${countryData.nativeName}</span>
@@ -162,6 +179,9 @@ $(document).ready(() => {
       content += `</span>
           </p>`;
     }
+
+    content += `
+      </div>`;
     return content;
   }
 
